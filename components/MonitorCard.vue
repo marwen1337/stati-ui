@@ -8,12 +8,13 @@ const { monitor } = defineProps<{ monitor: MonitorWithStatus }>()
 
 const { data: metrics } = await useApiFetch<MonitorMetric[]>(`/monitor/${monitor.id}/metrics`)
 
+const dayjs = useDayjs()
 const chartData = computed(() => {
   if (!metrics.value) {
     return []
   }
   return metrics.value.map(metric => ({
-    timestamp: metric.timestamp,
+    timestamp: dayjs(metric.timestamp).toString(),
     metric: metric.metrics.primary
   })).reverse()
 })
@@ -30,7 +31,7 @@ const chartData = computed(() => {
           :data="chartData"
           index="timestamp"
           :categories="['metric']"
-          :show-tooltip="false"
+          :show-tooltip="true"
           :show-grid-line="false"
           :show-legend="false"
           :show-x-axis="false"
