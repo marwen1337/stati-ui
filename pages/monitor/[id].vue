@@ -1,10 +1,12 @@
 <script setup lang="ts">
-
+definePageMeta({
+  title: 'Not available'
+})
 </script>
 
 <template>
   <div>
-    <h1>This page is not available yet</h1>
+    <p>This page is not available yet</p>
   </div>
 </template>
 
