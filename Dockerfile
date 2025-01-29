@@ -17,6 +17,8 @@ RUN npm run build
 
 FROM node:22-alpine AS runtime
 
+WORKDIR /app
+
 COPY --from=build /app/.output /app/.output
 COPY --from=build /app/package*.json /app/
 
