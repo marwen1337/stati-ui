@@ -21,7 +21,7 @@ const removeMonitorFromList = (monitorId: string) => {
 
 <template>
   <div>
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <MonitorCard v-for="monitor in data" :key="monitor.id" :monitor="monitor" @deleted="removeMonitorFromList" />
     </div>
     <ClientOnly>

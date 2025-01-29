@@ -21,7 +21,7 @@ const gridItems: { title: string, value: string | number, to: string }[] = [
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <NuxtLink v-for="item in gridItems" :key="item.to" :to="item.to" class="group">
       <Card>
         <CardHeader>

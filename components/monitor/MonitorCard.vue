@@ -33,7 +33,7 @@ const deleteMonitor = async () => {
     <CardContent class="flex flex-row justify-between items-center py-4 gap-4">
       <CardTitle>{{ monitor.name }}</CardTitle>
       <LineChart
-        class="h-10 w-96"
+        class="h-10 w-full max-w-96"
         :data="chartData"
         index="timestamp"
         :categories="['metric']"

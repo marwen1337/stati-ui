@@ -6,29 +6,43 @@ import { MonitorType } from '~/lib/model/monitor-type.enum'
 import { AutoForm } from '~/components/ui/auto-form'
 import type { Monitor, MonitorWithStatus } from '~/lib/model/monitor.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
+import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
 
 const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatus): void }>()
 
 const open = ref(false)
 
+const agents = await useApiFetchData<AgentWithConnectionStatus[]>('/agent')
+
+const agentNames = computed(() => {
+  return agents.value?.map(a => a.name) ?? []
+})
+
+const getAgentIdByName = (agentName: string): string | undefined => {
+  return agents.value?.find(a => a.name === agentName)?.id
+}
+
 const formSchema = z.object({
   name: z.string().min(3).max(64),
-  agentId: z.string().length(36),
+  agent: z.enum(agentNames.value as [string, ...string[]]),
   type: z.nativeEnum(MonitorType).default(MonitorType.HTTP),
   configuration: z.string().min(2).max(1024).default('{"url": "https://google.com"}'),
   intervalSeconds: z.number().min(5).max(86400).default(60)
 })
 
-const createMonitor = async (data) => {
-  const { error } = await useApiFetch<Monitor>('/monitor', {
+const createMonitor = async (values: object) => {
+  const { data, error } = await useApiFetch<Monitor>('/monitor', {
     method: 'POST',
-    body: data
+    body: {
+      ...values,
+      agentId: getAgentIdByName(values.agent)
+    }
   })
   if (error.value) {
     return
   }
   open.value = false
-  emit('created', { ...data, status: MonitorStatus.UP })
+  emit('created', { ...data.value!, status: MonitorStatus.UP })
 }
 </script>
 
