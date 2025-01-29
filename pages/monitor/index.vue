@@ -13,7 +13,6 @@ const addMonitorToList = (monitor: MonitorWithStatus) => {
 }
 
 const removeMonitorFromList = (monitorId: string) => {
-  console.log('removing')
   data.value.splice(data.value.findIndex(m => m.id === monitorId), 1)
 }
 

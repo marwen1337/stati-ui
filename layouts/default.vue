@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Navbar from '~/components/navigation/Navbar.vue'
+import { Toaster } from '~/components/ui/toast'
 
 const route = useRoute()
 </script>
@@ -14,6 +15,7 @@ const route = useRoute()
         <div id="navbarTeleportSlot" />
       </div>
       <slot />
+      <Toaster />
     </main>
   </div>
 </template>
