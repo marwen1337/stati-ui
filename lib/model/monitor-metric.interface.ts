@@ -11,5 +11,7 @@ export interface MonitorMetric {
 
 export const MonitorTypeMetricLabel: Record<MonitorType, string> = {
   [MonitorType.HTTP]: 'Request Latency',
-  [MonitorType.CPU]: 'CPU Usage'
+  [MonitorType.CPU]: 'CPU Usage',
+  [MonitorType.PING]: 'Latency',
+  [MonitorType.TCP]: 'Latency'
 }
