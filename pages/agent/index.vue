@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { TrashIcon } from 'lucide-vue-next'
 import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
 import AddAgentButton from '~/components/agent/AddAgentButton.vue'
-import AgentCard from '~/components/agent/AgentCard.vue'
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 
 const data = ref((await useApiFetchData<AgentWithConnectionStatus[]>('/agent')).value ?? [])
 
@@ -17,13 +18,51 @@ const removeAgentFromList = (agentId: string) => {
   data.value.splice(data.value.findIndex(m => m.id === agentId), 1)
 }
 
+const deleteAgent = async (id: string) => {
+  await useApiFetchData(`/agent/${id}`, { method: 'DELETE' })
+  removeAgentFromList(id)
+}
+
 </script>
 
 <template>
-  <div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <AgentCard v-for="agent in data" :key="agent.id" :agent="agent" @deleted="removeAgentFromList" />
-    </div>
+  <div class="rounded-lg border">
+    <Table class="w-full">
+      <TableHeader>
+        <TableRow>
+          <TableHead>
+            Name
+          </TableHead>
+          <TableHead>
+            Connected
+          </TableHead>
+          <TableHead>
+            Actions
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow v-for="agent in data" :key="agent.id">
+          <TableCell class="font-medium">
+            <NuxtLink :to="`/agent/${agent.id}`">
+              {{ agent.name }}
+            </NuxtLink>
+          </TableCell>
+          <TableCell :class="agent.isConnected ? 'text-green-500' : 'text-red-500'">
+            {{ agent.isConnected }}
+          </TableCell>
+          <TableCell>
+            <Button
+              variant="ghost"
+              class="text-red-500 hover:text-red-500 hover:bg-red-500/10"
+              @click="deleteAgent(agent.id)"
+            >
+              <TrashIcon />
+            </Button>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
     <ClientOnly>
       <Teleport to="#navbarTeleportSlot">
         <AddAgentButton @created="addAgentToList" />
