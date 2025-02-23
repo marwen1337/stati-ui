@@ -2,11 +2,14 @@
 
 import { PlusIcon } from 'lucide-vue-next'
 import * as z from 'zod'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { MonitorType } from '~/lib/model/monitor-type.enum'
 import { AutoForm } from '~/components/ui/auto-form'
 import type { Monitor, MonitorWithStatus } from '~/lib/model/monitor.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
+import { defaultConfigs } from '~/lib/model/monitor-defaults.config'
 
 const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatus): void }>()
 
@@ -22,7 +25,7 @@ const getAgentIdByName = (agentName: string): string | undefined => {
   return agents.value?.find(a => a.name === agentName)?.id
 }
 
-const formSchema = z.object({
+const schema = z.object({
   name: z.string().min(3).max(64),
   agent: z.enum(agentNames.value as [string, ...string[]]),
   type: z.nativeEnum(MonitorType).default(MonitorType.HTTP),
@@ -30,8 +33,23 @@ const formSchema = z.object({
   intervalSeconds: z.number().min(5).max(86400).default(60)
 })
 
-const createMonitor = async (values: object) => {
-  const { data, error } = await useApiFetch<Monitor>('/monitor', {
+const form = useForm({
+  validationSchema: toTypedSchema(schema)
+})
+
+watch(() => form.values.type, (newValue: MonitorType | undefined) => {
+  if (!newValue) {
+    return
+  }
+  const defaultValue = defaultConfigs[newValue]
+  form.setFieldValue('configuration', JSON.stringify(defaultValue))
+})
+
+const createMonitor = async (values: Record<string, any>) => {
+  const {
+    data,
+    error
+  } = await useApiFetch<Monitor>('/monitor', {
     method: 'POST',
     body: {
       ...values,
@@ -42,7 +60,10 @@ const createMonitor = async (values: object) => {
     return
   }
   open.value = false
-  emit('created', { ...data.value!, status: MonitorStatus.UP })
+  emit('created', {
+    ...data.value!,
+    status: MonitorStatus.UP
+  })
 }
 </script>
 
@@ -64,7 +85,8 @@ const createMonitor = async (values: object) => {
       <div class="my-4">
         <AutoForm
           class="flex flex-col gap-4"
-          :schema="formSchema"
+          :form="form"
+          :schema="schema"
           :field-config="{
             configuration: {label: 'Configuration', component: 'textarea'},
           }"
