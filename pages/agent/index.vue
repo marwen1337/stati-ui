@@ -3,6 +3,7 @@ import { TrashIcon } from 'lucide-vue-next'
 import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
 import AddAgentButton from '~/components/agent/AddAgentButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
+import StatusBadge from '~/components/utils/StatusBadge.vue'
 
 const data = ref((await useApiFetchData<AgentWithConnectionStatus[]>('/agent')).value ?? [])
 
@@ -49,7 +50,9 @@ const deleteAgent = async (id: string) => {
             </NuxtLink>
           </TableCell>
           <TableCell :class="agent.isConnected ? 'text-green-500' : 'text-red-500'">
-            {{ agent.isConnected }}
+            <StatusBadge :up="agent.isConnected">
+              {{ agent.isConnected ? 'Yes' : 'No' }}
+            </StatusBadge>
           </TableCell>
           <TableCell>
             <Button

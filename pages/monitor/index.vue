@@ -6,6 +6,8 @@ import AddMonitorButton from '~/components/monitor/AddMonitorButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
+import { Badge } from '~/components/ui/badge'
+import StatusBadge from '~/components/utils/StatusBadge.vue'
 
 const data = ref((await useApiFetchData<MonitorWithStatus[]>('/monitor')).value ?? [])
 
@@ -61,7 +63,7 @@ const cronToHumanReadable = (s: string) => {
             </NuxtLink>
           </TableCell>
           <TableCell>
-            {{ monitor.type }}
+            <Badge>{{ monitor.type }}</Badge>
           </TableCell>
           <TableCell>
             <TooltipProvider>
@@ -74,7 +76,9 @@ const cronToHumanReadable = (s: string) => {
             </TooltipProvider>
           </TableCell>
           <TableCell :class="monitor.status === MonitorStatus.UP ? 'text-green-500' : 'text-red-500'">
-            {{ monitor.status }}
+            <StatusBadge :up="monitor.status === MonitorStatus.UP">
+              {{ monitor.status }}
+            </StatusBadge>
           </TableCell>
           <TableCell>
             <Button
