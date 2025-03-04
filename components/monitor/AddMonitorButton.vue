@@ -1,17 +1,20 @@
 <script setup lang="ts">
+/* eslint-disable */
 
-import { PlusIcon } from 'lucide-vue-next'
+import {PlusIcon} from 'lucide-vue-next'
 import * as z from 'zod'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import { MonitorType } from '~/lib/model/monitor-type.enum'
-import { AutoForm } from '~/components/ui/auto-form'
-import type { Monitor, MonitorWithStatus } from '~/lib/model/monitor.interface'
-import { MonitorStatus } from '~/lib/model/monitor-status.enum'
-import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
-import { defaultConfigs } from '~/lib/model/monitor-defaults.config'
+import {useForm} from 'vee-validate'
+import {toTypedSchema} from '@vee-validate/zod'
+import cronstrue from 'cronstrue'
+import {MonitorType} from '~/lib/model/monitor-type.enum'
+import {AutoForm} from '~/components/ui/auto-form'
+import type {Monitor, MonitorWithStatus} from '~/lib/model/monitor.interface'
+import {MonitorStatus} from '~/lib/model/monitor-status.enum'
+import type {AgentWithConnectionStatus} from '~/lib/model/agent.interface'
+import {defaultConfigs} from '~/lib/model/monitor-defaults.config'
+import {CronExpressionParser} from "cron-parser";
 
-const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatus): void }>()
+const emit = defineEmits<{ (e: 'created', monitor: MonitorWithStatus): void }>()
 
 const open = ref(false)
 
@@ -30,7 +33,7 @@ const schema = z.object({
   agent: z.enum(agentNames.value as [string, ...string[]]),
   type: z.nativeEnum(MonitorType).default(MonitorType.HTTP),
   configuration: z.string().min(2).max(1024).default('{"url": "https://google.com"}'),
-  intervalSeconds: z.number().min(5).max(86400).default(60)
+  cronSchedule: z.string().default('0 * * * * *')
 })
 
 const form = useForm({
@@ -65,13 +68,23 @@ const createMonitor = async (values: Record<string, any>) => {
     status: MonitorStatus.UP
   })
 }
+
+const cronScheduleHumanReadable = computed(() => {
+  try {
+    CronExpressionParser.parse(form.values.cronSchedule ?? '');
+  } catch (e) {
+    form.setFieldError('cronSchedule', 'Invalid expression')
+    return ''
+  }
+  return cronstrue.toString(form.values.cronSchedule!)
+})
 </script>
 
 <template>
   <Dialog v-model:open="open">
     <DialogTrigger as-child>
       <Button variant="ghost">
-        <PlusIcon />
+        <PlusIcon/>
         Add Monitor
       </Button>
     </DialogTrigger>
@@ -84,13 +97,14 @@ const createMonitor = async (values: Record<string, any>) => {
       </DialogHeader>
       <div class="my-4">
         <AutoForm
-          class="flex flex-col gap-4"
-          :form="form"
-          :schema="schema"
-          :field-config="{
+            class="flex flex-col gap-4"
+            :form="form"
+            :schema="schema"
+            :field-config="{
             configuration: {label: 'Configuration', component: 'textarea'},
+            cronSchedule: {description: cronScheduleHumanReadable}
           }"
-          @submit="createMonitor"
+            @submit="createMonitor"
         >
           <Button type="submit">
             Save changes
