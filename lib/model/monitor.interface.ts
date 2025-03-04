@@ -4,7 +4,7 @@ import type { MonitorStatus } from '~/lib/model/monitor-status.enum'
 export interface Monitor {
     id: string
     name: string
-    intervalSeconds: number
+    cronSchedule: string
     type: MonitorType
     configuration: object
     createdAt: Date
@@ -14,7 +14,7 @@ export interface Monitor {
 export interface MonitorWithStatus {
     id: string
     name: string
-    intervalSeconds: number
+    cronSchedule: string
     type: MonitorType
     configuration: object
     createdAt: Date

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { TrashIcon } from 'lucide-vue-next'
+import cronstrue from 'cronstrue'
 import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
 import AddMonitorButton from '~/components/monitor/AddMonitorButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 
 const data = ref((await useApiFetchData<MonitorWithStatus[]>('/monitor')).value ?? [])
 
@@ -24,6 +26,9 @@ const deleteMonitor = async (id: string) => {
   removeMonitorFromList(id)
 }
 
+const cronToHumanReadable = (s: string) => {
+  return cronstrue.toString(s)
+}
 </script>
 
 <template>
@@ -59,7 +64,14 @@ const deleteMonitor = async (id: string) => {
             {{ monitor.type }}
           </TableCell>
           <TableCell>
-            {{ monitor.intervalSeconds }} seconds
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>{{ cronToHumanReadable(monitor.cronSchedule) }}</TooltipTrigger>
+                <TooltipContent>
+                  <p>{{ monitor.cronSchedule }}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </TableCell>
           <TableCell :class="monitor.status === MonitorStatus.UP ? 'text-green-500' : 'text-red-500'">
             {{ monitor.status }}
