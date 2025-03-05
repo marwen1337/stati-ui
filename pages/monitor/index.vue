@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { TrashIcon } from 'lucide-vue-next'
-import cronstrue from 'cronstrue'
 import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
 import AddMonitorButton from '~/components/monitor/AddMonitorButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
@@ -8,6 +7,7 @@ import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 import { Badge } from '~/components/ui/badge'
 import StatusBadge from '~/components/utils/StatusBadge.vue'
+import { cronToHumanReadable } from '~/lib/utils'
 
 const data = ref((await useApiFetchData<MonitorWithStatus[]>('/monitor')).value ?? [])
 
@@ -26,10 +26,6 @@ const removeMonitorFromList = (monitorId: string) => {
 const deleteMonitor = async (id: string) => {
   await useApiFetchData(`/monitor/${id}`, { method: 'DELETE' })
   removeMonitorFromList(id)
-}
-
-const cronToHumanReadable = (s: string) => {
-  return cronstrue.toString(s)
 }
 </script>
 
