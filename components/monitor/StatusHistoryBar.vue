@@ -14,7 +14,7 @@ const colorsMap: Record<MonitorStatus, string> = {
 
 <template>
   <div>
-    <div class="flex gap-2">
+    <div class="flex justify-between gap-2">
       <TooltipProvider
         v-for="metric in metrics"
         :key="metric.timestamp"
@@ -32,7 +32,7 @@ const colorsMap: Record<MonitorStatus, string> = {
         </Tooltip>
       </TooltipProvider>
     </div>
-    <div class="flex justify-between mt-2">
+    <div v-if="metrics.length" class="flex justify-between mt-2">
       <span>{{ $dayjs(metrics[0].timestamp).fromNow() }}</span>
       <span>{{ $dayjs(metrics[metrics.length - 1].timestamp).fromNow() }}</span>
     </div>

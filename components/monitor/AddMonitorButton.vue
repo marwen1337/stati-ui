@@ -84,7 +84,7 @@ const createMonitor = async () => {
     method: 'POST',
     body: {
       ...values,
-      agentId: getAgentIdByName(values.agent),
+      agentId: getAgentIdByName(values.agent!),
       configuration: JSON.stringify(configuration)
     }
   })
