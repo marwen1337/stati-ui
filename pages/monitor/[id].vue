@@ -21,6 +21,13 @@ const monitor = await useApiFetchData<MonitorWithStatus>(`/monitor/${route.param
     return monitor as Ref<MonitorWithStatus>
   })
 
+const historyDurationOptions: Record<string, string> = {
+  '5 minutes': String(new Date(Date.now() - 300 * 1000).getTime()),
+  '1 hour': String(new Date(Date.now() - 3600 * 1000).getTime()),
+  '24 hours': String(new Date(Date.now() - 24 * 3600 * 1000).getTime()),
+  '30 days': String(new Date(Date.now() - 30 * 24 * 3600 * 1000).getTime())
+}
+const currentHistoryDurationOption = ref<string>(historyDurationOptions['1 hour'])
 const titleCardHeader = useTemplateRef('titleCardHeader')
 const metricsAmount = ref(0)
 const {
@@ -29,7 +36,7 @@ const {
   execute: metricsExecute
 } = await useApiFetch<MonitorMetric[]>(`/monitor/${route.params.id}/metrics`, {
   immediate: false,
-  query: { amount: metricsAmount }
+  query: { amount: metricsAmount, from: currentHistoryDurationOption }
 })
 
 const flattenedMetrics = computed(() => {
@@ -81,8 +88,18 @@ onMounted(() => {
       </CardHeader>
     </Card>
     <Card v-if="metricsStatus === 'success'">
-      <CardHeader>
+      <CardHeader class="flex flex-row items-center justify-between">
         <CardTitle>Status History</CardTitle>
+        <Select v-model="currentHistoryDurationOption">
+          <SelectTrigger class="w-auto">
+            <SelectValue placeholder="Duration" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="(value, key) in historyDurationOptions" :key="key" :value="value">
+              {{ key }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent>
         <StatusHistoryBar :metrics="metrics ?? []" />
