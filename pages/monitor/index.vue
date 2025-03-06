@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { TrashIcon } from 'lucide-vue-next'
 import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
 import AddMonitorButton from '~/components/monitor/AddMonitorButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
@@ -17,15 +16,6 @@ definePageMeta({
 
 const addMonitorToList = (monitor: MonitorWithStatus) => {
   data.value.unshift(monitor)
-}
-
-const removeMonitorFromList = (monitorId: string) => {
-  data.value.splice(data.value.findIndex(m => m.id === monitorId), 1)
-}
-
-const deleteMonitor = async (id: string) => {
-  await useApiFetchData(`/monitor/${id}`, { method: 'DELETE' })
-  removeMonitorFromList(id)
 }
 </script>
 
@@ -45,9 +35,6 @@ const deleteMonitor = async (id: string) => {
           </TableHead>
           <TableHead>
             Status
-          </TableHead>
-          <TableHead>
-            Actions
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -75,15 +62,6 @@ const deleteMonitor = async (id: string) => {
             <StatusBadge :up="monitor.status === MonitorStatus.UP">
               {{ monitor.status }}
             </StatusBadge>
-          </TableCell>
-          <TableCell>
-            <Button
-              variant="ghost"
-              class="text-red-500 hover:text-red-500 hover:bg-red-500/10"
-              @click="deleteMonitor(monitor.id)"
-            >
-              <TrashIcon />
-            </Button>
           </TableCell>
         </TableRow>
       </TableBody>

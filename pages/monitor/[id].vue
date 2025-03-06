@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { PencilIcon, TrashIcon } from 'lucide-vue-next'
-import { cronToHumanReadable } from '../../lib/utils'
+import { cronToHumanReadable } from '~/lib/utils'
 import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
 import type { MonitorMetric } from '~/lib/model/monitor-metric.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import StatusBadge from '~/components/utils/StatusBadge.vue'
 import StatusHistoryBar from '~/components/monitor/StatusHistoryBar.vue'
+import { useToast } from '~/components/ui/toast/use-toast'
 
 const route = useRoute()
 
@@ -46,6 +47,14 @@ const flattenedMetrics = computed(() => {
   }))
 })
 
+const { toast } = useToast()
+const deleteMonitor = () => {
+  useApiFetchData(`/monitor/${monitor.value.id}`, { method: 'DELETE' }).then(() => {
+    toast({ title: 'Monitor deleted', description: `Deleted monitor ${monitor.value.name}` })
+    navigateTo('/monitor')
+  })
+}
+
 onMounted(() => {
   if (titleCardHeader.value) {
     const widthPerItem = 16
@@ -80,7 +89,7 @@ onMounted(() => {
             <PencilIcon />
             Edit
           </Button>
-          <Button variant="destructive" disabled>
+          <Button variant="destructive" @click="deleteMonitor">
             <TrashIcon />
             Delete
           </Button>
