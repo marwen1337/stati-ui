@@ -124,6 +124,8 @@ onMounted(() => {
           index="timestamp"
           :categories="['primary']"
           :x-formatter="(tick, i) => $dayjs(flattenedMetrics[i].timestamp).format('HH:mm:ss')"
+          :show-legend="false"
+          :y-domain="[0, undefined]"
         />
       </CardContent>
     </Card>

@@ -1,12 +1,11 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import type { BaseChartProps } from '.'
-import { ChartCrosshair, ChartLegend, defaultColors } from '@/components/ui/chart'
-import { cn } from '@/lib/utils'
-import { type BulletLegendItemInterface, CurveType } from '@unovis/ts'
-import { Axis, Line } from '@unovis/ts'
+import { Axis, type BulletLegendItemInterface, CurveType, Line } from '@unovis/ts'
 import { VisAxis, VisLine, VisXYContainer } from '@unovis/vue'
 import { useMounted } from '@vueuse/core'
 import { type Component, computed, ref } from 'vue'
+import type { BaseChartProps } from '.'
+import { cn } from '@/lib/utils'
+import { ChartCrosshair, ChartLegend, defaultColors } from '@/components/ui/chart'
 
 const props = withDefaults(defineProps<BaseChartProps<T> & {
   /**
@@ -16,7 +15,8 @@ const props = withDefaults(defineProps<BaseChartProps<T> & {
   /**
    * Type of curve
    */
-  curveType?: CurveType
+  curveType?: CurveType,
+  yDomain?: Array<number | undefined>
 }>(), {
   curveType: CurveType.MonotoneX,
   filterOpacity: 0.2,
@@ -26,6 +26,7 @@ const props = withDefaults(defineProps<BaseChartProps<T> & {
   showTooltip: true,
   showLegend: true,
   showGridLine: true,
+  yDomain: undefined
 })
 
 const emits = defineEmits<{
@@ -41,12 +42,12 @@ const colors = computed(() => props.colors?.length ? props.colors : defaultColor
 const legendItems = ref<BulletLegendItemInterface[]>(props.categories.map((category, i) => ({
   name: category,
   color: colors.value[i],
-  inactive: false,
+  inactive: false
 })))
 
 const isMounted = useMounted()
 
-function handleLegendItemClick(d: BulletLegendItemInterface, i: number) {
+function handleLegendItemClick (d: BulletLegendItemInterface, i: number) {
   emits('legendItemClick', d, i)
 }
 </script>
@@ -59,8 +60,15 @@ function handleLegendItemClick(d: BulletLegendItemInterface, i: number) {
       :margin="{ left: 20, right: 20 }"
       :data="data"
       :style="{ height: isMounted ? '100%' : 'auto' }"
+      :y-domain="yDomain"
     >
-      <ChartCrosshair v-if="showTooltip" :colors="colors" :items="legendItems" :index="index" :custom-tooltip="customTooltip" />
+      <ChartCrosshair
+        v-if="showTooltip"
+        :colors="colors"
+        :items="legendItems"
+        :index="index"
+        :custom-tooltip="customTooltip"
+      />
 
       <template v-for="(category, i) in categories" :key="category">
         <VisLine

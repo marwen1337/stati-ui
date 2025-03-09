@@ -7,5 +7,6 @@ export function cn (...inputs: ClassValue[]) {
 }
 
 export const cronToHumanReadable = (s: string) => {
+  // eslint-disable-next-line import/no-named-as-default-member
   return cronstrue.toString(s)
 }

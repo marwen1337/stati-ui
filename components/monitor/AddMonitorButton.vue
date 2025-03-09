@@ -3,7 +3,6 @@ import { PlusIcon } from 'lucide-vue-next'
 import * as z from 'zod'
 import { type FormContext, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import cronstrue from 'cronstrue'
 import { CronExpressionParser } from 'cron-parser'
 import { MonitorType } from '~/lib/model/monitor-type.enum'
 import { AutoForm } from '~/components/ui/auto-form'
@@ -11,6 +10,7 @@ import type { Monitor, MonitorWithStatus } from '~/lib/model/monitor.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
 import type { ZodObjectOrWrapped } from '~/components/ui/auto-form/utils'
+import { cronToHumanReadable } from '~/lib/utils'
 
 const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatus): void }>()
 
@@ -105,7 +105,7 @@ const cronScheduleHumanReadable = computed(() => {
     form.setFieldError('cronSchedule', 'Invalid expression')
     return ''
   }
-  return cronstrue.toString(form.values.cronSchedule!)
+  return cronToHumanReadable(form.values.cronSchedule!)
 })
 </script>
 
