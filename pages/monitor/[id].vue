@@ -32,16 +32,19 @@ const currentHistoryDurationOption = ref<string>(historyDurationOptions['1 hour'
 const titleCardHeader = useTemplateRef('titleCardHeader')
 const metricsAmount = ref(0)
 const {
-  data: metrics,
-  status: metricsStatus,
+  data: rawMetrics,
   execute: metricsExecute
 } = await useApiFetch<MonitorMetric[]>(`/monitor/${route.params.id}/metrics`, {
   immediate: false,
   query: { amount: metricsAmount, from: currentHistoryDurationOption }
 })
 
+const metrics = computed<MonitorMetric[]>(() => {
+  return rawMetrics.value ?? []
+})
+
 const flattenedMetrics = computed(() => {
-  return (metrics.value ?? []).map(m => ({
+  return metrics.value.map(m => ({
     timestamp: m.timestamp,
     ...m.metrics
   }))
@@ -96,7 +99,7 @@ onMounted(() => {
         </div>
       </CardHeader>
     </Card>
-    <Card v-if="metricsStatus === 'success'">
+    <Card>
       <CardHeader class="flex flex-row items-center justify-between">
         <CardTitle>Status History</CardTitle>
         <Select v-model="currentHistoryDurationOption">
@@ -111,10 +114,10 @@ onMounted(() => {
         </Select>
       </CardHeader>
       <CardContent>
-        <StatusHistoryBar :metrics="metrics ?? []" />
+        <StatusHistoryBar :metrics="metrics" />
       </CardContent>
     </Card>
-    <Card v-if="metricsStatus === 'success'">
+    <Card>
       <CardHeader>
         <CardTitle>Metric History</CardTitle>
       </CardHeader>
