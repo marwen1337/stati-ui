@@ -6,13 +6,13 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { CronExpressionParser } from 'cron-parser'
 import { MonitorType } from '~/lib/model/monitor-type.enum'
 import { AutoForm } from '~/components/ui/auto-form'
-import type { Monitor, MonitorWithStatus } from '~/lib/model/monitor.interface'
+import type { Monitor, MonitorWithStatusAndAgent } from '~/lib/model/monitor.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
-import type { AgentWithConnectionStatus } from '~/lib/model/agent.interface'
+import type { Agent, AgentWithConnectionStatus } from '~/lib/model/agent.interface'
 import type { ZodObjectOrWrapped } from '~/components/ui/auto-form/utils'
 import { cronToHumanReadable } from '~/lib/utils'
 
-const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatus): void }>()
+const emit = defineEmits<{(e: 'created', monitor: MonitorWithStatusAndAgent): void }>()
 
 const open = ref(false)
 
@@ -80,7 +80,7 @@ const createMonitor = async () => {
   const {
     data,
     error
-  } = await useApiFetch<Monitor>('/monitor', {
+  } = await useApiFetch<Monitor & { agent: Agent }>('/monitor', {
     method: 'POST',
     body: {
       ...values,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { PencilIcon, TrashIcon } from 'lucide-vue-next'
-import { cronToHumanReadable } from '~/lib/utils'
-import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from 'lucide-vue-next'
+import { cronToHumanReadable } from '../../lib/utils'
+import type { MonitorWithStatus, MonitorWithStatusAndAgent } from '~/lib/model/monitor.interface'
 import type { MonitorMetric } from '~/lib/model/monitor-metric.interface'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
 import StatusBadge from '~/components/utils/StatusBadge.vue'
@@ -14,7 +14,7 @@ definePageMeta({
   title: 'Monitor Details'
 })
 
-const monitor = await useApiFetchData<MonitorWithStatus>(`/monitor/${route.params.id}`)
+const monitor = await useApiFetchData<MonitorWithStatusAndAgent>(`/monitor/${route.params.id}?agent=true`)
   .then((monitor) => {
     if (!monitor.value) {
       throw createError({ statusCode: 404, statusMessage: 'Monitor Not Found' })
@@ -83,6 +83,12 @@ onMounted(() => {
           </CardTitle>
           <Badge>{{ cronToHumanReadable(monitor.cronSchedule) }}</Badge>
           <Badge>{{ monitor.type }}</Badge>
+          <NuxtLink :to="`/agent/${monitor.agent.id}`">
+            <Badge>
+              {{ monitor.agent.name }}
+              <ExternalLinkIcon class="ml-2 w-3.5 h-3.5" />
+            </Badge>
+          </NuxtLink>
           <StatusBadge :up="monitor.status === MonitorStatus.UP">
             {{ monitor.status }}
           </StatusBadge>

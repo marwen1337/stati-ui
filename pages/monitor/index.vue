@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { MonitorWithStatus } from '~/lib/model/monitor.interface'
+import { ArrowRightIcon } from 'lucide-vue-next'
+import type { MonitorWithStatusAndAgent } from '~/lib/model/monitor.interface'
 import AddMonitorButton from '~/components/monitor/AddMonitorButton.vue'
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 import { MonitorStatus } from '~/lib/model/monitor-status.enum'
@@ -8,13 +9,13 @@ import { Badge } from '~/components/ui/badge'
 import StatusBadge from '~/components/utils/StatusBadge.vue'
 import { cronToHumanReadable } from '~/lib/utils'
 
-const data = ref((await useApiFetchData<MonitorWithStatus[]>('/monitor')).value ?? [])
+const data = ref((await useApiFetchData<MonitorWithStatusAndAgent[]>('/monitor?agent=true')).value ?? [])
 
 definePageMeta({
   title: 'Monitors'
 })
 
-const addMonitorToList = (monitor: MonitorWithStatus) => {
+const addMonitorToList = (monitor: MonitorWithStatusAndAgent) => {
   data.value.unshift(monitor)
 }
 </script>
@@ -26,6 +27,9 @@ const addMonitorToList = (monitor: MonitorWithStatus) => {
         <TableRow>
           <TableHead>
             Name
+          </TableHead>
+          <TableHead>
+            Agent
           </TableHead>
           <TableHead>
             Type
@@ -46,6 +50,14 @@ const addMonitorToList = (monitor: MonitorWithStatus) => {
             </NuxtLink>
           </TableCell>
           <TableCell>
+            <NuxtLink :to="`/agent/${monitor.agent.id}`">
+              <Badge>
+                {{ monitor.agent.name }}
+                <ArrowRightIcon class="ml-2 w-3.5 h-3.5" />
+              </Badge>
+            </NuxtLink>
+          </TableCell>
+          <TableCell>
             <Badge>{{ monitor.type }}</Badge>
           </TableCell>
           <TableCell>
@@ -53,7 +65,9 @@ const addMonitorToList = (monitor: MonitorWithStatus) => {
               <Tooltip>
                 <TooltipTrigger>{{ cronToHumanReadable(monitor.cronSchedule) }}</TooltipTrigger>
                 <TooltipContent>
-                  <p>{{ monitor.cronSchedule }}</p>
+                  <p>
+                    {{ monitor.cronSchedule }}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

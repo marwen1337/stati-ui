@@ -45,7 +45,7 @@ const deleteAgent = async (id: string) => {
       <TableBody>
         <TableRow v-for="agent in data" :key="agent.id">
           <TableCell class="font-medium">
-            <NuxtLink :to="`/agent/${agent.id}`">
+            <NuxtLink :to="`/agent/${agent.id}`" class="flex">
               {{ agent.name }}
             </NuxtLink>
           </TableCell>
